@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:new_project/Classifier.dart';
 import 'package:new_project/models/patientModel.dart';
+import 'package:new_project/models/patientModelProvider.dart';
+import 'package:provider/provider.dart';
 import '../components/VowelBlock.dart';
 
 class SampleScreen extends StatelessWidget {
-  final Patient patient;
-
-  const SampleScreen({super.key, required this.patient});
+  const SampleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: Scaffold(
+    return Consumer<PatientModelProvider>(
+        builder: (context, patientModelProvider, child) {
+      return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
-          leading: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
           ),
           title: const Text('Record Voice Samples'),
-
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -43,16 +43,17 @@ class SampleScreen extends StatelessWidget {
                         text: 'INSTRUCTIONS: ',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple, // You can change the color here
+                          color: Colors
+                              .deepPurple, // You can change the color here
                         ),
                       ),
-
                       TextSpan(text: "\n"),
-                      TextSpan(text: 'Keep the mobile phone 10cm away from the patient, and take 03 voice samples for each vowel sound.'),
+                      TextSpan(
+                          text:
+                              'Keep the mobile phone 10cm away from the patient, and take 03 voice samples for each vowel sound.'),
                     ],
                   ),
-                )
-                ,
+                ),
               ),
 
               // pass the model by reference to the VowelRecorderBlock, without making a copy
@@ -62,8 +63,7 @@ class SampleScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
-
 }

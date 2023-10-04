@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:new_project/models/patientModelProvider.dart';
+import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../models/patientModel.dart';
 import '/services/uploadService.dart';
 
 class VowelRecorder extends StatefulWidget {
@@ -47,73 +50,86 @@ class _VowelRecorderState extends State<VowelRecorder> {
   // Button to start recording
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 4, 20, 4),
-      margin: EdgeInsets.fromLTRB(20, 0, 20, 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text("Take ${widget.take}"),
-                  IconButton(
-                    onPressed: isRecording ? stopRecording : startRecording,
-                    icon: Icon(
-                      isRecording
-                          ? Icons.stop
-                          : (!isRecording && audioPath.isNotEmpty)
-                              ? Icons.check
-                              : Icons.mic,
-                    ),
-                    color: isRecording
-                        ? Colors.red
-                        : (!isRecording && audioPath.isNotEmpty)
-                            ? Colors
-                                .green // Change color to green when it's a tick
-                            : Colors.blue,
-                  ),
-                  if (!isRecording && audioPath.isNotEmpty)
+    return Consumer<PatientModelProvider>(
+        builder: (context, patientModelProvider, child) {
+      Patient patient = patientModelProvider.patient;
+      return Container(
+        padding: EdgeInsets.fromLTRB(20, 4, 20, 4),
+        margin: EdgeInsets.fromLTRB(20, 0, 20, 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Text("Take ${widget.take}"),
                     IconButton(
-                      onPressed: playRecording,
-                      icon: Icon(Icons.play_arrow),
+                      onPressed: isRecording ? stopRecording : startRecording,
+                      icon: Icon(
+                        isRecording
+                            ? Icons.stop
+                            : (!isRecording && audioPath.isNotEmpty)
+                                ? Icons.check
+                                : Icons.mic,
+                      ),
+                      color: isRecording
+                          ? Colors.red
+                          : (!isRecording && audioPath.isNotEmpty)
+                              ? Colors
+                                  .green // Change color to green when it's a tick
+                              : Colors.blue,
                     ),
-                  // if (audioPath.isNotEmpty) Text("Audio Path: $audioPath"),
-                ],
-              ),
-              Row(
-                children: [
-                  if (audioPath.isEmpty) Text("Record a sample"),
-                  if (audioPath.isNotEmpty && result == "pending")
-                    ElevatedButton(
-                      onPressed: analyzeFile,
-                      child: Text('Analyze'),
-                    ),
-                  if (result != "pending" && result != "error")
-                    if (result == "Healthy")
-                      const Text(
-                        "Healthy",
-                        style: TextStyle(
-                            color: Colors.green, fontWeight: FontWeight.bold),
-                      )
-                    else
-                      Text(
-                        result,
-                        style: const TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.bold),
-                      )
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+                    if (!isRecording && audioPath.isNotEmpty)
+                      IconButton(
+                        onPressed: () {
+                          playRecording();
+                        },
+                        icon: Icon(Icons.play_arrow),
+                      ),
+                    // if (audioPath.isNotEmpty) Text("Audio Path: $audioPath"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    if (audioPath.isEmpty) Text("Record a sample"),
+                    if (audioPath.isNotEmpty && result == "pending")
+                      ElevatedButton(
+                        onPressed: () async {
+                          String? response = await FileUploader.uploadFile(
+                              audioPath, 'http://192.168.8.134:8000/upload');
+                          patientModelProvider.addRecording(widget.vowel, response);
+                          setState(() {
+                            result = response;
+                          });
+                        },
+                        child: Text('Analyze'),
+                      ),
+                    if (result != "pending" && result != "error")
+                      if (result == "Healthy")
+                        const Text(
+                          "Healthy",
+                          style: TextStyle(
+                              color: Colors.green, fontWeight: FontWeight.bold),
+                        )
+                      else
+                        Text(
+                          result,
+                          style: const TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.bold),
+                        )
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Future<void> startRecording() async {

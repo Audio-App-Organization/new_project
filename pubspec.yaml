@@ -45,6 +45,7 @@ dependencies:
   dio: ^5.3.3
   file_picker: ^5.5.0
   google_fonts: ^4.0.4
+  provider: ^6.0.5
   
   
 

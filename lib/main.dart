@@ -9,6 +9,9 @@ import 'package:new_project/Showdetails.dart';
 import 'package:new_project/dashboard.dart';
 import 'package:new_project/login.dart';
 import 'package:new_project/addPatient.dart';
+import 'package:provider/provider.dart';
+
+import 'models/patientModelProvider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,15 +19,18 @@ Future<void> main() async {
 
   // Check if user is logged in
   // var user = FirebaseAuth.instance.currentUser;
-  Widget initialScreen = const SampleScreen();
+  Widget initialScreen = const AddPatient();
 
-  runApp(MaterialApp(
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      useMaterial3: true,
+  runApp(ChangeNotifierProvider(
+    create: (context) => PatientModelProvider(),
+    child: MaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      debugShowCheckedModeBanner: false,
+      home: initialScreen,
     ),
-    debugShowCheckedModeBanner: false,
-    home: initialScreen,
   ));
 }
 
