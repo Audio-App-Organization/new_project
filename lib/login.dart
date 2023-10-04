@@ -142,18 +142,6 @@ class _LoginpageState extends State<Loginpage> {
                     ),
                   ),
                 ),
-                /*const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Forgot Password",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    )
-                  ],
-                ),*/
                 Column(
                   children: <Widget>[
                     MaterialButton(

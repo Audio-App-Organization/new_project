@@ -1,66 +1,48 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:new_project/Diagnosisreport.dart';
-import 'package:new_project/Searchpatient.dart';
-import 'package:new_project/login.dart';
 import 'package:new_project/addPatient.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Logout"),
-          content: Text("Are you sure you want to logout?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                // Implement logout functionality here
-                // After logout, you can navigate to the login screen or perform other actions
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Loginpage())); // Close the dialog
-              },
-              child: Text("Logout"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    return const DashboardPage();
+  }
+}
+
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({Key? key}) : super(key: key);
+
+  @override
+  State<DashboardPage> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<DashboardPage> {
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(title: Text("Patients"), actions: [
         IconButton(
           icon: Icon(Icons.search),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        Searchpatient()));
-          },
-        )
+          onPressed: () {},
+        ),
       ]),
       drawer: Drawer(
         child: ListView(
           children: [
+            // add firebase details
             UserAccountsDrawerHeader(
-              accountName: Text("Your Name"),
-              accountEmail: Text("your@email.com"),
+              accountName: Text(user!.displayName.toString() != "" ? user.displayName.toString() : "No Name"),
+              accountEmail: Text(user.email.toString() != "" ? user.email.toString() : "NoEmail"),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage("assets/man.png"),
+                backgroundColor: Colors.white,
+                child: Text(
+                  user.displayName.toString() != "" ? user.email.toString()[0] : "N",
+                  style: TextStyle(fontSize: 40.0),
+                ),
               ),
             ),
             ListTile(
@@ -83,11 +65,7 @@ class Dashboard extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text("Logout"),
-              onTap: () {
-                Navigator.pop(context);
-                _showLogoutDialog(context); // Close the drawer
-                // Implement logout functionality here
-              },
+              onTap: () => FirebaseAuth.instance.signOut(),
             ),
           ],
         ),
@@ -102,14 +80,10 @@ class Dashboard extends StatelessWidget {
           ],
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      AddPatient()));
+              context, MaterialPageRoute(builder: (context) => AddPatient()));
         },
         child: const Icon(Icons.add),
       ),
