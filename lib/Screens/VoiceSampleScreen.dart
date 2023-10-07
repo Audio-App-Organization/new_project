@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:new_project/Classifier.dart';
-import 'package:new_project/models/patientModel.dart';
-import 'package:new_project/models/patientModelProvider.dart';
+import 'package:new_project/models/PatientModelProvider.dart';
 import 'package:provider/provider.dart';
 import '../components/VowelBlock.dart';
 

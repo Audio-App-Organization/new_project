@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:new_project/dashboard.dart';
+import 'package:new_project/Screens/Dashboard.dart';
 
 class Report extends StatelessWidget {
   @override

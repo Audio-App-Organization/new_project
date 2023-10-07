@@ -1,24 +1,25 @@
 import 'package:flutter/cupertino.dart';
-import 'package:new_project/models/patientModel.dart';
+import 'package:new_project/models/PatientModel.dart';
 
 
-class PatientModelProvider extends ChangeNotifier{
-  Patient patient = Patient(id: "", name: "", tpNumber: "", birthday: "", history: []);
+class PatientModelProvider extends ChangeNotifier {
+  Patient patient = Patient(nic: "",
+      name: "",
+      telephone: "",
+      age: "",
+      history: "");
 
-void setPatient(Patient patient){
+
+  void setPatient(Patient patient) {
     this.patient = patient;
     notifyListeners();
   }
 
-  void addRecording(String vowel, String recording){
+  void addRecording(String vowel, String recording) {
     patient.addRecording(vowel, recording);
     notifyListeners();
   }
 
-  void addHistory(String history){
-    patient.history.add(history);
-    notifyListeners();
-  }
 
   void updateRecordingResult(String vowel, String result) {
     // Check if the patient exists in the recordings map
@@ -30,7 +31,6 @@ void setPatient(Patient patient){
       patient.recordings.putIfAbsent(vowel, () => [result]);
     }
   }
-
 
 
 }

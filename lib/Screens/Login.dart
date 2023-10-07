@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'Dashboard.dart';
+import 'Register.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -22,69 +24,8 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    // return Scaffold(
-    //   appBar: AppBar(
-    //     title: Center(child: const Text("Login")),
-    //   ),
-    //   body: Center(
-    //     child: Container(
-    //       padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-    //       child: Form(
-    //         child: Column(
-    //           children: <Widget>[
-    //             TextField(
-    //                 controller: emailController,
-    //                 decoration: const InputDecoration(
-    //                     border: OutlineInputBorder(),
-    //                     labelText: "User Email"),
-    //               ),
-    //             SizedBox(height: 10.0),
-    //             TextField(
-    //               controller: passwordController,
-    //               decoration: const InputDecoration(
-    //                   border: OutlineInputBorder(),
-    //                   labelText: "Password"),
-    //               obscureText: true,
-    //             ),
-    //
-    //             const SizedBox(height: 10.0),
-    //             ElevatedButton(
-    //               style: ElevatedButton.styleFrom(
-    //                   minimumSize: const Size(250, 50),
-    //                   foregroundColor: Colors.deepPurple,
-    //                   // Add transparent background
-    //                   backgroundColor: Colors.white,
-    //                   shape: RoundedRectangleBorder(
-    //                       side: const BorderSide(color: Colors.deepPurple),
-    //                       borderRadius: BorderRadius.circular(50))),
-    //               child: const Text(
-    //                 "Login",
-    //                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-    //               ),
-    //               onPressed: signIn,
-    //             ),
-    //           ],
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            size: 20,
-            color: Colors.deepPurple,
-          ),
-        ),
-      ),
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
         width: double.infinity,
@@ -177,15 +118,20 @@ class _LoginState extends State<Login> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(
+                    const Text(
                       "Don't Have an Account ?",
                       style: TextStyle(
                         fontSize: 16,
                       ),
                     ),
                     TextButton(
-                        onPressed: () {},
-                        child: Text(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Register()));
+                      },
+                        child: const Text(
                           "Register",
                           style: TextStyle(
                             fontSize: 18,
@@ -213,5 +159,23 @@ class _LoginState extends State<Login> {
     await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim());
+
+    // print JWT
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String? token = await user.getIdToken();
+      print(token);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Dashboard()),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Login()),
+      );
+    }
   }
+
+
 }

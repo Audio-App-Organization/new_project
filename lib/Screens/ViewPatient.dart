@@ -1,12 +1,32 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:new_project/Screens/sampleScreen.dart';
-import 'package:new_project/models/patientModelProvider.dart';
+import 'package:new_project/Screens/Dashboard.dart';
+import 'package:new_project/Screens/VoiceSampleScreen.dart';
+import 'package:new_project/models/PatientModelProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
-import 'models/patientModel.dart';
+import '../Globals/localhost.dart';
+import '../models/PatientModel.dart';
 
-class ShowDetails extends StatelessWidget {
-  const ShowDetails({super.key});
+class ViewPatient extends StatelessWidget {
+  const ViewPatient({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const PatientDetailsPage();
+  }
+}
+
+class PatientDetailsPage extends StatefulWidget {
+  const PatientDetailsPage({Key? key}) : super(key: key);
+
+  @override
+  State<PatientDetailsPage> createState() => _PatientDetailsState();
+}
+
+
+class _PatientDetailsState extends State<PatientDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +43,8 @@ class ShowDetails extends StatelessWidget {
               backgroundColor: Colors.deepPurple,
               leading: IconButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Dashboard()));
                 },
                 icon: const Icon(
                   Icons.arrow_back_ios,
@@ -36,16 +57,44 @@ class ShowDetails extends StatelessWidget {
                     color: Colors.white,
                     onPressed: () {}),
                 IconButton(
-                    icon: Icon(Icons.delete),
-                    color: Colors.white,
-                    onPressed: () {})
+                  icon: Icon(Icons.delete),
+                  color: Colors.white,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Confirm Delete"),
+                          content: Text(
+                              "Are you sure you want to delete your account?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context); // Close the dialog
+                              },
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: deletepatient,
+                              child: Text("Delete"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                )
               ]),
           body: Stack(children: [
             ListView(
               children: [
                 ListTile(
+                  title: Text("Patient ID"),
+                  subtitle: Text(patient.patient_id),
+                ),
+                ListTile(
                   title: Text("ID Number"),
-                  subtitle: Text(patient.id),
+                  subtitle: Text(patient.nic),
                 ),
                 ListTile(
                   title: Text("Name"),
@@ -53,23 +102,23 @@ class ShowDetails extends StatelessWidget {
                 ),
                 ListTile(
                   title: Text("Age"),
-                  subtitle: Text(patient.birthday),
+                  subtitle: Text(patient.age),
                 ),
                 ListTile(
                   title: Text("Telephone Number"),
-                  subtitle: Text(patient.tpNumber),
+                  subtitle: Text(patient.telephone),
                 ),
                 ListTile(
                   title: Text("Medical History"),
-                  subtitle: Text(patient.history.join(', ')),
+                  subtitle: Text(patient.history),
                 ),
-                Text("Voice Samples",
+                Text(
+                  "Voice Samples",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
-                  ),
-
+                ),
                 ListTile(
                   title: Text("Vowel A"),
                   subtitle: Text(patient.recordings['a'].toString()),
@@ -130,4 +179,53 @@ class ShowDetails extends StatelessWidget {
       },
     );
   }
+
+  void deletepatient() async {
+
+
+    String? token = await FirebaseAuth.instance.currentUser!.getIdToken();
+    // get localhost
+    String localhost = Localhost.localhost;
+
+
+    // Make the HTTP request with patient_id in body
+    var response = await http.delete(
+      Uri.parse('$localhost:3000/deletepatient'),
+      headers: {'Authorization': 'Bearer $token'},
+      body: {'patient_id': Provider.of<PatientModelProvider>(context, listen: false).patient.patient_id},
+    );
+
+    if (response.statusCode == 200) {
+
+      // delete patient from provider
+      Provider.of<PatientModelProvider>(context, listen: false).setPatient(Patient(nic: "",
+        name: "",
+        telephone: "",
+        age: "",
+        history: ""));
+
+      // add "" to patient_id in provider
+      Provider.of<PatientModelProvider>(context, listen: false).patient.patient_id = "";
+
+      // redirect to home page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Dashboard(),
+        ),
+      );
+
+      // give bottom alert saying user deleted
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Patient deleted'),
+        ),
+      );
+
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to delete patient');
+    }
+  }
 }
+

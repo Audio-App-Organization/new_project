@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:new_project/models/patientModelProvider.dart';
+import 'package:new_project/models/PatientModelProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../models/patientModel.dart';
-import '/services/uploadService.dart';
+import '../models/PatientModel.dart';
+import '/services/UploadService.dart';
 
 class VowelRecorder extends StatefulWidget {
   final String vowel;

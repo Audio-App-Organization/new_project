@@ -1,17 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:new_project/Register.dart';
-import 'package:new_project/Screens/LogIn.dart';
-import 'package:new_project/Screens/sampleScreen.dart';
-import 'package:new_project/Showdetails.dart';
-import 'package:new_project/dashboard.dart';
-import 'package:new_project/login.dart';
-import 'package:new_project/addPatient.dart';
+import 'package:new_project/Screens/Dashboard.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'Screens/AuthScreen.dart';
-import 'models/patientModelProvider.dart';
+import 'models/PatientModelProvider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
