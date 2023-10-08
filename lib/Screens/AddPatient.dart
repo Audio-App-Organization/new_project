@@ -96,7 +96,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your NIC';
                           }
-                          if (value.length != 10) {
+                          if (value.length != 10 && value.length != 12) {
                             return 'Please enter a valid NIC';
                           }
                           return null;

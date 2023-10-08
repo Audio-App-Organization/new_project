@@ -17,10 +17,9 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  String? confirmPasswordError;
-  final formKey = GlobalKey<FormState>();
 
   final _formfield = GlobalKey<FormState>();
+  String? confirmPasswordError;
   final emailController = TextEditingController();
   final passController = TextEditingController();
   final idController = TextEditingController();
@@ -36,8 +35,8 @@ class _RegisterState extends State<Register> {
     return emailRegExp.hasMatch(email);
   }
 
-  String? validatePassword(String? value) {
-    bool hasUppercase = value!.contains(RegExp(r'[A-Z]'));
+  String? validatePassword(String value) {
+    bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
     bool hasNumber = value.contains(RegExp(r'[0-9]'));
     bool hasSpecialChar = value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
     bool isLengthValid = value.length >= 8;
@@ -60,7 +59,7 @@ class _RegisterState extends State<Register> {
       messages.add("1 number or special character");
     }
 
-    if (isLengthValid && hasUppercase && (hasNumber || hasSpecialChar)) {
+    if (!isLengthValid || !hasUppercase || !(hasNumber || hasSpecialChar)) {
       return messages.join(", ");
       // if all ara valid, save it to variable called validPassword
     }
@@ -257,7 +256,7 @@ class _RegisterState extends State<Register> {
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: "atlease 8 characters, 1 uppercase letter, 1 number or special character",
+                            text: "atleast 8 characters, 1 uppercase letter, 1 number or special character",
                             style: TextStyle(
                               fontSize: 15,
                               color: Colors.black87,
@@ -268,9 +267,11 @@ class _RegisterState extends State<Register> {
                     ),
 
                     const SizedBox(height: 10),
-
                     TextFormField(
                       keyboardType: TextInputType.text,
+                      validator: (value) {
+                        return validatePassword(value!);
+                      },
                       controller: passController,
                       obscureText: passToggle,
                       decoration: InputDecoration(
@@ -287,7 +288,6 @@ class _RegisterState extends State<Register> {
                                 ? Icons.visibility
                                 : Icons.visibility_off),
                           )),
-                      validator: validatePassword,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                     const SizedBox(height: 10),
@@ -318,6 +318,7 @@ class _RegisterState extends State<Register> {
                         }
                         return null; // No error
                       },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                     Text(
                       confirmPasswordError ?? '',
@@ -325,6 +326,7 @@ class _RegisterState extends State<Register> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       keyboardType: TextInputType.number,
                       controller: TPnumberController,
                       decoration: const InputDecoration(
@@ -351,9 +353,13 @@ class _RegisterState extends State<Register> {
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "Enter ID";
+                          return "Enter Valid Work Place";
+                        }
+                        else if (value.contains(RegExp(r'[0-9]'))) {
+                          return "Enter a valid Work Place";
                         }
                       },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                   ],
                 ),

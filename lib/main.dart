@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
               return Dashboard(); // Removed const here
             } else {
               // change this to AuthScreen
-              return AddPatient(); // Removed const here
+              return AuthScreen(); // Removed const here
             }
           },
         ),
