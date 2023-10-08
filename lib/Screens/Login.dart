@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'Dashboard.dart';
 import 'Register.dart';
 
@@ -125,20 +126,19 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Register()));
-                      },
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Register()));
+                        },
                         child: const Text(
                           "Register",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
-                        )),
-                    /*Text(
+                        )), /*Text(
                       "Register",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -155,27 +155,50 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future signIn() async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim());
+  Future<void> signIn() async {
+    try {
+      var response = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim());
 
-    // print JWT
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String? token = await user.getIdToken();
-      print(token);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Dashboard()),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Login()),
-      );
+      // print JWT
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        // Handle invalid email format error
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Invalid Email"),
+              content: const Text("Please enter a valid email address."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Login()),
+                    ); // Close the dialog
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Handle other FirebaseAuthException errors here
+        print('Error: ${e.message}');
+      }
+    } catch (e) {
+      // Handle other exceptions
+      print('Error: $e');
     }
   }
-
-
 }

@@ -10,6 +10,7 @@ class SampleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PatientModelProvider>(
         builder: (context, patientModelProvider, child) {
+      String patient_id = patientModelProvider.patient.patient_id;
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.deepPurple,
@@ -24,6 +25,23 @@ class SampleScreen extends StatelessWidget {
             ),
           ),
           title: const Text('Record Voice Samples'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: () {
+                // save the patient details
+                patientModelProvider.updateDatabase();
+                // small bar showing that the patient details have been saved
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Patient details saved'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+                Navigator.pop(context);
+              },
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -55,9 +73,11 @@ class SampleScreen extends StatelessWidget {
               ),
 
               // pass the model by reference to the VowelRecorderBlock, without making a copy
-              VowelRecorderBlock(vowel: 'a', patientID: "1234"),
-              VowelRecorderBlock(vowel: 'e', patientID: "1234"),
-              VowelRecorderBlock(vowel: 'i', patientID: "1234"),
+              VowelRecorderBlock(vowel: 'a', patientID: patient_id),
+              VowelRecorderBlock(vowel: 'e', patientID: patient_id),
+              VowelRecorderBlock(vowel: 'i', patientID: patient_id),
+              VowelRecorderBlock(vowel: 'o', patientID: patient_id),
+              VowelRecorderBlock(vowel: 'u', patientID: patient_id),
             ],
           ),
         ),

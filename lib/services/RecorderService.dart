@@ -8,6 +8,7 @@ import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../Globals/localhost.dart';
 import '../models/PatientModel.dart';
 import '/services/UploadService.dart';
 
@@ -100,8 +101,9 @@ class _VowelRecorderState extends State<VowelRecorder> {
                     if (audioPath.isNotEmpty && result == "pending")
                       ElevatedButton(
                         onPressed: () async {
+                          String localhost = Localhost.localhost;
                           String? response = await FileUploader.uploadFile(
-                              audioPath, 'http://192.168.8.134:8000/upload');
+                              audioPath, '$localhost:8000/upload');
                           patientModelProvider.addRecording(widget.vowel, response);
                           setState(() {
                             result = response;

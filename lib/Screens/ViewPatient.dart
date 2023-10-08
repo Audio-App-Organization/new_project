@@ -88,6 +88,16 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
           body: Stack(children: [
             ListView(
               children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text(
+                    "Patient Details",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
                 ListTile(
                   title: Text("Patient ID"),
                   subtitle: Text(patient.patient_id),
@@ -112,32 +122,35 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                   title: Text("Medical History"),
                   subtitle: Text(patient.history),
                 ),
-                Text(
-                  "Voice Samples",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text(
+                    "Voice Samples",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
                 ListTile(
                   title: Text("Vowel A"),
-                  subtitle: Text(patient.recordings['a'].toString()),
+                  subtitle: Text(patient.recordings['a']!.join(',')),
                 ),
                 ListTile(
                   title: Text("Vowel E"),
-                  subtitle: Text(patient.recordings['e'].toString()),
+                  subtitle: Text(patient.recordings['e']!.join(',')),
                 ),
                 ListTile(
                   title: Text("Vowel I"),
-                  subtitle: Text(patient.recordings['i'].toString()),
+                  subtitle: Text(patient.recordings['i']!.join(',')),
                 ),
                 ListTile(
                   title: Text("Vowel O"),
-                  subtitle: Text(patient.recordings['o'].toString()),
+                  subtitle: Text(patient.recordings['o']!.join(',')),
                 ),
                 ListTile(
                   title: Text("Vowel U"),
-                  subtitle: Text(patient.recordings['u'].toString()),
+                  subtitle: Text(patient.recordings['u']!.join(',')),
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -149,6 +162,8 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                       children: [
                         ElevatedButton.icon(
                           onPressed: () {
+                            // make the recordings in model empty
+                            patientModelProvider.clearRecordings();
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => SampleScreen(),

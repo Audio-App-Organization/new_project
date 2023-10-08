@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +7,8 @@ import 'package:new_project/Screens/Dashboard.dart';
 
 import '../Globals/localhost.dart';
 import 'Login.dart';
+
+final formKey = GlobalKey<FormState>();
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -31,6 +34,37 @@ class _RegisterState extends State<Register> {
     // Define a regular expression for email validation
     final RegExp emailRegExp = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
     return emailRegExp.hasMatch(email);
+  }
+
+  String? validatePassword(String? value) {
+    bool hasUppercase = value!.contains(RegExp(r'[A-Z]'));
+    bool hasNumber = value.contains(RegExp(r'[0-9]'));
+    bool hasSpecialChar = value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+    bool isLengthValid = value.length >= 8;
+
+    List<String> messages = [];
+
+    if (value.isEmpty) {
+      return "Enter Password";
+    }
+
+    if (!isLengthValid) {
+      messages.add("8 characters ");
+    }
+
+    if (!hasUppercase) {
+      messages.add("1 uppercase letter ");
+    }
+
+    if (!hasNumber && !hasSpecialChar) {
+      messages.add("1 number or special character");
+    }
+
+    if (isLengthValid && hasUppercase && (hasNumber || hasSpecialChar)) {
+      return messages.join(", ");
+      // if all ara valid, save it to variable called validPassword
+    }
+    return null;
   }
 
   // Add user to database while registering using firestore
@@ -67,8 +101,6 @@ class _RegisterState extends State<Register> {
       );
       print(response);
       print("Account Created");
-
-
 
       // login with firebase with the created account.
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -138,7 +170,6 @@ class _RegisterState extends State<Register> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-
           child: Column(
             children: <Widget>[
               SizedBox(height: 50),
@@ -161,15 +192,21 @@ class _RegisterState extends State<Register> {
                     TextFormField(
                       keyboardType: TextInputType.emailAddress,
                       controller: idController,
+                      // check if id is 05 numeric digits
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Enter ID";
+                        } else if (value.length != 5) {
+                          return "Enter a valid ID with 5 Numbers";
+                        }
+                        return null;
+                      },
+                      // No error
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: InputDecoration(
                         labelText: "TherapistID",
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Enter ID";
-                        }
-                      },
                     ),
                     SizedBox(height: 10),
                     TextFormField(
@@ -182,8 +219,13 @@ class _RegisterState extends State<Register> {
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "Enter ID";
+                          // if there are numbers
+                        } else if (value.contains(RegExp(r'[0-9]'))) {
+                          return "Enter a valid Name";
                         }
+                        return null;
                       },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                     SizedBox(height: 10),
                     TextFormField(
@@ -202,8 +244,31 @@ class _RegisterState extends State<Register> {
                         }
                         return null; // No error
                       },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                     SizedBox(height: 10),
+                    // display password guidelines with 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+                    RichText(
+                      text: TextSpan(
+                        text: "Password must contain: \n",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: "atlease 8 characters, 1 uppercase letter, 1 number or special character",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
                     TextFormField(
                       keyboardType: TextInputType.emailAddress,
                       controller: passController,
@@ -222,11 +287,8 @@ class _RegisterState extends State<Register> {
                                 ? Icons.visibility
                                 : Icons.visibility_off),
                           )),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Enter Password";
-                        }
-                      },
+                      validator: validatePassword,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -250,7 +312,7 @@ class _RegisterState extends State<Register> {
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "Enter Password";
+                          return "Confirm Password";
                         } else if (value != passController.text) {
                           return "Passwords do not match";
                         }
@@ -273,6 +335,7 @@ class _RegisterState extends State<Register> {
                         if (value!.isEmpty) {
                           return "Enter A Telephone Number";
                         }
+                        return null;
                       },
                     ),
                     SizedBox(height: 10),
@@ -293,7 +356,22 @@ class _RegisterState extends State<Register> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: registerWithFirebase,
+                // check if all the fields are filled and valid using the _formfield key
+                onPressed: () {
+                  if (_formfield.currentState!.validate()) {
+                    registerWithFirebase();
+                  } else {
+                    print("Not Validated");
+                    // nugget to show that the form is not validated
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please fill all the fields'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  }
+                },
+
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(250, 50),
                   shape: RoundedRectangleBorder(
@@ -318,10 +396,8 @@ class _RegisterState extends State<Register> {
                   ),
                   TextButton(
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Login()));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Login()));
                       },
                       child: Text(
                         "Login",
