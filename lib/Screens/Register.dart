@@ -8,7 +8,6 @@ import 'package:new_project/Screens/Dashboard.dart';
 import '../Globals/localhost.dart';
 import 'Login.dart';
 
-final formKey = GlobalKey<FormState>();
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -19,6 +18,7 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   String? confirmPasswordError;
+  final formKey = GlobalKey<FormState>();
 
   final _formfield = GlobalKey<FormState>();
   final emailController = TextEditingController();
@@ -270,7 +270,7 @@ class _RegisterState extends State<Register> {
                     const SizedBox(height: 10),
 
                     TextFormField(
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                       controller: passController,
                       obscureText: passToggle,
                       decoration: InputDecoration(
@@ -292,7 +292,7 @@ class _RegisterState extends State<Register> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                       controller: ConfirmpassController,
                       obscureText: passToggle,
                       decoration: InputDecoration(
@@ -325,7 +325,7 @@ class _RegisterState extends State<Register> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.number,
                       controller: TPnumberController,
                       decoration: const InputDecoration(
                         labelText: "Telephone Number",
@@ -334,6 +334,10 @@ class _RegisterState extends State<Register> {
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "Enter A Telephone Number";
+                        }
+                        // 10 or 9 numerical digits
+                        else if (value.length != 10 && value.length != 9) {
+                          return "Enter a valid Telephone Number";
                         }
                         return null;
                       },

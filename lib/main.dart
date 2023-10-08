@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:new_project/Screens/AddPatient.dart';
 import 'package:new_project/Screens/Dashboard.dart';
 import 'package:provider/provider.dart';
 import 'Screens/AuthScreen.dart';
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
             if (snapshot.hasData) {
               return Dashboard(); // Removed const here
             } else {
-              return AuthScreen(); // Removed const here
+              // change this to AuthScreen
+              return AddPatient(); // Removed const here
             }
           },
         ),
