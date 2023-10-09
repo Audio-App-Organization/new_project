@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:new_project/models/PatientModelProvider.dart';
 import 'package:provider/provider.dart';
+
 import '../components/VowelBlock.dart';
+import 'CreatePDF.dart';
 
 class SampleScreen extends StatelessWidget {
   const SampleScreen({super.key});
@@ -30,15 +32,13 @@ class SampleScreen extends StatelessWidget {
               icon: const Icon(Icons.save),
               onPressed: () {
                 // save the patient details
-                patientModelProvider.updateDatabase();
-                // small bar showing that the patient details have been saved
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Patient details saved'),
-                    duration: Duration(seconds: 1),
+                // patientModelProvider.updateDatabase();
+                print("Button Pressed");
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CreatePDF(),
                   ),
                 );
-                Navigator.pop(context);
               },
             ),
           ],
@@ -74,9 +74,7 @@ class SampleScreen extends StatelessWidget {
 
               // pass the model by reference to the VowelRecorderBlock, without making a copy
               VowelRecorderBlock(vowel: 'a', patientID: patient_id),
-              VowelRecorderBlock(vowel: 'e', patientID: patient_id),
               VowelRecorderBlock(vowel: 'i', patientID: patient_id),
-              VowelRecorderBlock(vowel: 'o', patientID: patient_id),
               VowelRecorderBlock(vowel: 'u', patientID: patient_id),
             ],
           ),

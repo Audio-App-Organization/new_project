@@ -203,8 +203,9 @@ class _VowelRecorderState extends State<VowelRecorder> {
   }
 
   Future<void> analyzeFile() async {
+    String localhost = Localhost.localhost;
     String? response = await FileUploader.uploadFile(
-        audioPath, 'http://192.168.8.134:8000/upload');
+        audioPath, 'localhost:8000/upload');
     setState(() {
       result = response;
     });

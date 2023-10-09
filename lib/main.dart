@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:new_project/Screens/AddPatient.dart';
+import 'package:new_project/Screens/AuthScreen.dart';
 import 'package:new_project/Screens/Dashboard.dart';
 import 'package:provider/provider.dart';
-import 'Screens/AuthScreen.dart';
+import 'Screens/CreatePDF.dart';
 import 'models/PatientModelProvider.dart';
 
 Future<void> main() async {

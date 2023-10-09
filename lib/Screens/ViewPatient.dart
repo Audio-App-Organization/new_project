@@ -136,18 +136,12 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                   title: Text("Vowel A"),
                   subtitle: Text(patient.recordings['a']!.join(',')),
                 ),
-                ListTile(
-                  title: Text("Vowel E"),
-                  subtitle: Text(patient.recordings['e']!.join(',')),
-                ),
+
                 ListTile(
                   title: Text("Vowel I"),
                   subtitle: Text(patient.recordings['i']!.join(',')),
                 ),
-                ListTile(
-                  title: Text("Vowel O"),
-                  subtitle: Text(patient.recordings['o']!.join(',')),
-                ),
+
                 ListTile(
                   title: Text("Vowel U"),
                   subtitle: Text(patient.recordings['u']!.join(',')),

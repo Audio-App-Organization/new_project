@@ -50,12 +50,16 @@ class FileUploader {
   static String getDiseaseNameFromPrediction(int prediction) {
     // Add your logic to map prediction to disease names here
     // For example:
-    if (prediction == 1) {
-      return 'Disease A';
+    if (prediction == 0){
+      return 'Dysphonia';
+    } else if (prediction == 1) {
+      return 'Laryngitis';
     } else if (prediction == 2) {
-      return 'Disease B';
+      return 'Pcychogenic Dysphonia';
+    } else if (prediction == 3) {
+      return 'Spasmodic Dysphonia';
     } else {
-      return 'Unknown Disease';
+      return 'Unknown';
     }
   }
 }

@@ -7,11 +7,10 @@ class Patient {
   final String history;
   Map<String, List<String>> recordings = {
     'a': [],
-    'e': [],
     'i': [],
-    'o': [],
     'u': [],
   };
+  late String comment;
 
   Patient({
     required this.nic,
@@ -33,4 +32,5 @@ class Patient {
   void addRecording(String vowel, String recording) {
     recordings[vowel]!.add(recording);
   }
+
 }
