@@ -156,20 +156,51 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> signIn() async {
+    //loading screen
     try {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
       var response = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim());
 
       // print JWT
       User? user = FirebaseAuth.instance.currentUser;
+
+      Navigator.pop(context);
+
       if (user != null) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const Dashboard()),
         );
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Logged In Successfully"),
+              content: const Text("You have successfully logged in."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
       }
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       if (e.code == 'invalid-email') {
         // Handle invalid email format error
         showDialog(
@@ -192,7 +223,9 @@ class _LoginState extends State<Login> {
             );
           },
         );
-      } else {
+      }
+      // if wrong password
+      else {
         // Handle other FirebaseAuthException errors here
         print('Error: ${e.message}');
       }

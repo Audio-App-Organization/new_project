@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:new_project/Globals/localhost.dart';
-import 'package:new_project/Screens/UserProfile.dart';
-import 'package:new_project/Screens/AddPatient.dart';
 import 'package:http/http.dart' as http;
+import 'package:new_project/Globals/localhost.dart';
+import 'package:new_project/Screens/AddPatient.dart';
+import 'package:new_project/Screens/UserProfile.dart';
 import 'package:provider/provider.dart';
 
 import '../models/PatientModel.dart';
@@ -40,12 +41,37 @@ class _DashboardState extends State<DashboardPage> {
     workplace: "",
   );
   List<Patient> patients = [];
+  List<Patient> searchResults = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserDetails();
     getPatients();
+    // dummyPatients();
+    searchResults = patients;
+  }
+
+  // search function with ID or Name
+  void search(String query) {
+    List<Patient> results = [];
+    // Search algorithm
+    print("searching");
+    if (query != "") {
+      for (int i = 0; i < patients.length; i++) {
+        if (patients[i].name.toLowerCase().contains(query.toLowerCase()) ||
+            patients[i].nic.toLowerCase().contains(query.toLowerCase())) {
+          results.add(patients[i]);
+          print("found");
+        }
+      }
+    } else {
+      results = patients;
+    }
+
+    setState(() {
+      searchResults = results;
+    });
   }
 
   void _loadUserDetails() async {
@@ -60,6 +86,17 @@ class _DashboardState extends State<DashboardPage> {
     }
   }
 
+  String generateRandomNIC() {
+    Random random = Random();
+    String nic = '';
+
+    for (int i = 0; i < 10; i++) {
+      nic += random.nextInt(10).toString();
+    }
+
+    return nic;
+  }
+
   void getPatients() async {
     // get token from Auth instance
     String? token = await FirebaseAuth.instance.currentUser!.getIdToken();
@@ -68,10 +105,8 @@ class _DashboardState extends State<DashboardPage> {
     String localhost = Localhost.localhost;
 
     // Make the HTTP request
-    var response = await http.get(
-      Uri.parse('$localhost:3000/patients'),
-      headers: {'Authorization': 'Bearer $token'}
-    );
+    var response = await http.get(Uri.parse('$localhost:3000/patients'),
+        headers: {'Authorization': 'Bearer $token'});
 
     print(response);
 
@@ -84,28 +119,47 @@ class _DashboardState extends State<DashboardPage> {
       List<Patient> jsonPatients =
           jsonResponse.map((data) => Patient.fromJson(data)).toList();
 
+      print("Patient 01 Name: ${jsonPatients[0].name}");
+
       setState(() {
         patients = jsonPatients;
+        searchResults = jsonPatients;
       });
-
-      print(patients);
 
     } else {
       // If that response was not OK, throw an error.
       throw Exception('Failed to load patients');
     }
   }
+  //
+  // void dummyPatients() {
+  //   List<Patient> dummyPatient = [];
+  //   for (int i = 0; i < 10; i++) {
+  //     //random 10 random digits for single nic number string
+  //     String nic = generateRandomNIC();
+  //
+  //     Patient patient = Patient(
+  //       nic: nic,
+  //       name: 'Patient $i',
+  //       age: '30',
+  //       telephone: '123456789',
+  //       history: 'No significant medical history',
+  //     );
+  //     dummyPatient.add(patient);
+  //   }
+  //
+  //   setState(() {
+  //     patients = dummyPatient;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(title: Text("Patients"), actions: [
-        IconButton(
-          icon: Icon(Icons.search),
-          onPressed: () {},
-        ),
-      ]),
+      appBar: AppBar(
+        title: Text("Patients"),
+      ),
       drawer: Drawer(
         child: ListView(
           children: [
@@ -141,6 +195,7 @@ class _DashboardState extends State<DashboardPage> {
                 leading: Icon(Icons.exit_to_app),
                 title: Text("Logout"),
                 onTap: () {
+
                   FirebaseAuth.instance.signOut();
 
                   Navigator.push(
@@ -154,13 +209,24 @@ class _DashboardState extends State<DashboardPage> {
         ),
       ),
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: ListView.builder(
-          itemCount: patients.length,
-          itemBuilder: (context, index) {
-            return _buildPatientCard(patients[index]);
-          },
-        ),
+      body: Column(
+        children: [
+          TextField(
+            decoration: const InputDecoration(
+              hintText: 'Search by ID or Name',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onChanged: (value) {
+              search(value);
+            },
+          ),
+          Expanded(
+              child: ListView.builder(
+                  itemCount: searchResults.length,
+                  itemBuilder: (context, index) {
+                    return _buildPatientCard(searchResults[index]);
+                  })),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -194,4 +260,3 @@ class _DashboardState extends State<DashboardPage> {
     );
   }
 }
-

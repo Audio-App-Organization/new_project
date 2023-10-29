@@ -69,6 +69,24 @@ class _RegisterState extends State<Register> {
   // Add user to database while registering using firestore
   Future<void> registerWithFirebase() async {
     try {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Registration Successful'),
+            content: Text('You have successfully registered.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
       String? emailAddress = emailController.text;
 
       UserCredential userCredential =
@@ -116,6 +134,11 @@ class _RegisterState extends State<Register> {
       print('Error in Registration: $e');
     }
 
+    Navigator.pop(context);
+
+    // add a dialog box with success message and an OK button
+    _showLoginSuccessDialog(context);
+
     // redirect to main.dart
     Navigator.push(
       context,
@@ -140,7 +163,7 @@ class _RegisterState extends State<Register> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text("Success"),
-              content: Text("You have Successfully Registered in"),
+              content: Text("You have Successfully Registered"),
               actions: [
                 TextButton(
                   onPressed: () {

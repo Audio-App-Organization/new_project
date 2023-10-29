@@ -1,12 +1,10 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../Globals/localhost.dart';
-import '../models/PatientModel.dart';
 import '../models/userModel.dart';
 import 'Login.dart';
 
@@ -36,7 +34,6 @@ class _UserProfileState extends State<UserProfilePage> {
     workplace: "",
   );
 
-
   @override
   void initState() {
     super.initState();
@@ -60,9 +57,17 @@ class _UserProfileState extends State<UserProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("User Profile"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.delete),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          buildTitleSubtitlePair("Therapist ID", "${user.therapistId}"),
+          buildTitleSubtitlePair("Name", "${user.name}"),
+          buildTitleSubtitlePair("Email", "${user.email}"),
+          buildTitleSubtitlePair("Telephone", "${user.telephone}"),
+          buildTitleSubtitlePair("Workplace", "${user.workplace}"),
+          SizedBox(height: 20),
+          ElevatedButton(
             onPressed: () {
               showDialog(
                 context: context,
@@ -70,7 +75,8 @@ class _UserProfileState extends State<UserProfilePage> {
                   return AlertDialog(
                     title: Text("Confirm Delete"),
                     content:
-                    Text("Are you sure you want to delete your account?"),
+                    // you will lose all your data including patients and voice samples
+                        Text("Are you sure you want to delete your account? This will delete all your data including patients and voice samples."),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -87,23 +93,34 @@ class _UserProfileState extends State<UserProfilePage> {
                 },
               );
             },
-          ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          buildTitleSubtitlePair("Therapist ID", "${user.therapistId}"),
-          buildTitleSubtitlePair("Name", "${user.name}"),
-          buildTitleSubtitlePair("Email", "${user.email}"),
-          buildTitleSubtitlePair("Telephone", "${user.telephone}"),
-          buildTitleSubtitlePair("Workplace", "${user.workplace}"),
+            child: Text("Deactivate Account",
+                style: TextStyle(fontSize: 16)),
+            style: ElevatedButton.styleFrom(
+              // low saturated red for background
+              backgroundColor: Colors.red[100],
+              foregroundColor: Colors.red,
+              // make the button big
+              minimumSize: Size(200, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(32.0),
+              ),
+            ),
+          )
         ],
       ),
     );
   }
+
   // delete user function with delete firebase account, and call backend /deleteuser
   void deleteuser() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
     // get token from Auth instance
     String? token = await FirebaseAuth.instance.currentUser!.getIdToken();
 
@@ -115,6 +132,8 @@ class _UserProfileState extends State<UserProfilePage> {
       Uri.parse('$localhost:3000/deleteuser'),
       headers: {'Authorization': 'Bearer $token'},
     );
+
+    Navigator.pop(context); // Close the dialog
 
     if (response.statusCode == 200) {
       // user is deleted successfully from backend
@@ -136,7 +155,6 @@ class _UserProfileState extends State<UserProfilePage> {
           content: Text('User deleted'),
         ),
       );
-
     } else {
       // If that response was not OK, throw an error.
       throw Exception('Failed to load user details');
@@ -205,4 +223,3 @@ Widget buildTitleSubtitlePair(String topic, String data) {
     ),
   );
 }
-

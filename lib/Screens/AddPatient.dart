@@ -304,7 +304,16 @@ class _AddPatientFormState extends State<AddPatientForm> {
     );
   }
 
-  Future<void> addPatient(patientProvider) async {
+  Future<void> addPatient1(patientProvider) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
     history = [];
     if (isChecked1) {
       history.add('Pressure');
@@ -365,10 +374,188 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
     patientProvider.setPatient(patient);
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ViewPatient(),
-      ),
-    );
+    Navigator.pop(context);
+
+    // handle response errors, responses and dislay dialog boxes for each
+    if (response.statusCode == 200) {
+      // patient is added successfully from backend
+
+      // navigate to view patient page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ViewPatient(),
+        ),
+      );
+
+      // give bottom alert saying patient added
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Patient added'),
+        ),
+      );
+    } else if (response.statusCode == 400) {
+      // patient already exists
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Patient Already Exists"),
+            content: const Text("This patient already exists."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load patient details');
+    }
   }
+
+  Future<void> addPatient(patientProvider) async {
+    try {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      // add a delay
+      await Future.delayed(const Duration(seconds: 2));
+
+      history = [];
+      if (isChecked1) {
+        history.add('Pressure');
+      }
+      if (isChecked2) {
+        history.add('Heart Problems');
+      }
+      if (isChecked3) {
+        history.add('Cholesterol');
+      }
+      if (isChecked4) {
+        history.add('Allergies');
+      }
+      if (isChecked5) {
+        history.add('Other');
+      }
+
+      Patient patient = Patient(
+        nic: _id.text,
+        name: _name.text,
+        age: _age.text,
+        telephone: _telephone.text,
+        history: history.join(', '),
+      );
+
+      User? user = FirebaseAuth.instance.currentUser;
+
+      String? token = await user?.getIdToken();
+
+      String localhost = Localhost.localhost;
+
+      var response = await http.post(
+        Uri.parse('$localhost:3000/createpatient'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(<String, String>{
+          'nic': patient.nic.toString(),
+          'name': patient.name,
+          'age': patient.age,
+          'telephone': patient.telephone,
+          'medical_history': patient.history.toString(),
+        }),
+      );
+
+      print("Saved Patient Details");
+      print(response.body);
+
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseMap = json.decode(response.body);
+        String patientId = responseMap['patient_id'];
+        patient.patient_id = patientId;
+        patientProvider.setPatient(patient);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewPatient(),
+          ),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Patient added'),
+          ),
+        );
+      } else if (response.statusCode == 400) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Patient Already Exists"),
+              content: const Text("This patient already exists."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Dashboard(),
+                      ),
+                    );
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        throw Exception('Failed to load patient details');
+      }
+
+
+    } catch (error) {
+      // Handle any unexpected errors
+      print("Error: $error");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: Text("An unexpected error occurred: $error"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // go to dashboard
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Dashboard(),
+                    ),
+                  );
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
 }
